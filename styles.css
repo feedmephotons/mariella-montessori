@@ -61,6 +61,7 @@
 html {
     scroll-behavior: smooth;
     font-size: 16px;
+    overflow-x: hidden;
 }
 
 body {
@@ -1934,10 +1935,13 @@ a:hover {
     }
 
     /* Mobile: carousel mode for programs */
+    .programs-section .container {
+        overflow: hidden;
+    }
+
     .program-vtabs {
         flex-direction: column;
         position: relative;
-        padding: 0 40px;
     }
 
     .vtab-list {
@@ -1963,27 +1967,34 @@ a:hover {
         min-width: 0;
     }
 
-    /* Mobile carousel controls (injected by JS) */
+    /* Mobile carousel controls — overlaid on the card */
     .mobile-carousel-nav {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
-        background: var(--white);
-        border: 1px solid var(--light-gray);
+        background: rgba(255, 255, 255, 0.85);
+        border: none;
         color: var(--dark);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         z-index: 2;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
     }
 
-    .mobile-carousel-prev { left: 0; }
-    .mobile-carousel-next { right: 0; }
+    .mobile-carousel-nav:active {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-50%) scale(0.92);
+    }
+
+    .mobile-carousel-prev { left: 8px; }
+    .mobile-carousel-next { right: 8px; }
 
     .mobile-carousel-footer {
         display: flex;

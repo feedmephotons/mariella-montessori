@@ -196,8 +196,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function sizeCarousel() {
             if (!isMobile) return;
-            // Calculate available width: viewport minus vtabs padding (40px each side)
-            var w = window.innerWidth - 80;
+            // Calculate from viewport minus container padding
+            var container = vtabs.closest('.container');
+            var cs = getComputedStyle(container);
+            var w = window.innerWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
             panelsEl.style.width = w + 'px';
             panels.forEach(function(p) { p.style.width = w + 'px'; });
         }
