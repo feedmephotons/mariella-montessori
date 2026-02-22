@@ -1102,6 +1102,12 @@ a:hover {
     border-left: 3px solid transparent;
 }
 
+/* Hide mobile carousel controls on desktop */
+.mobile-carousel-nav,
+.mobile-carousel-footer {
+    display: none;
+}
+
 .branch-studio-section .vtab-panel .program-card { border-left-color: var(--purple); }
 .branch-academia-section .vtab-panel .program-card { border-left-color: var(--teal); }
 .branch-collective-section .vtab-panel .program-card { border-left-color: var(--aqua); }
@@ -1927,41 +1933,94 @@ a:hover {
         grid-template-columns: 1fr;
     }
 
+    /* Mobile: carousel mode for programs */
     .program-vtabs {
         flex-direction: column;
+        position: relative;
+        padding: 0 40px;
     }
 
     .vtab-list {
-        flex: none;
-        flex-direction: row;
-        overflow-x: auto;
-        gap: 0;
-        position: static;
-        border-bottom: 1px solid var(--light-gray);
-        padding-bottom: 0;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-
-    .vtab-list::-webkit-scrollbar {
         display: none;
     }
 
-    .vtab-btn {
-        flex: 0 0 auto;
-        border-left: none;
-        border-bottom: 3px solid transparent;
-        padding: 8px 14px;
-        white-space: nowrap;
-        font-size: 0.85rem;
+    .vtab-panels {
+        border-radius: var(--radius-lg);
     }
 
-    .branch-studio-section .vtab-btn.active { border-left-color: transparent; border-bottom-color: var(--purple); }
-    .branch-academia-section .vtab-btn.active { border-left-color: transparent; border-bottom-color: var(--teal); }
-    .branch-collective-section .vtab-btn.active { border-left-color: transparent; border-bottom-color: var(--aqua); }
+    .vtab-panels.carousel-mode {
+        overflow: hidden;
+    }
 
-    .vtab-age {
-        display: none;
+    .vtab-panels.carousel-mode .carousel-track {
+        display: flex;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .vtab-panels.carousel-mode .vtab-panel {
+        display: block;
+        flex: 0 0 100%;
+        min-width: 0;
+    }
+
+    /* Mobile carousel controls (injected by JS) */
+    .mobile-carousel-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--white);
+        border: 1px solid var(--light-gray);
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .mobile-carousel-prev { left: 0; }
+    .mobile-carousel-next { right: 0; }
+
+    .mobile-carousel-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        margin-top: var(--spacing-sm);
+    }
+
+    .mobile-carousel-dots {
+        display: flex;
+        gap: 6px;
+    }
+
+    .mobile-carousel-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--light-gray);
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .mobile-carousel-dot.active {
+        background: var(--teal);
+        transform: scale(1.3);
+    }
+
+    .branch-studio-section .mobile-carousel-dot.active { background: var(--purple); }
+    .branch-collective-section .mobile-carousel-dot.active { background: var(--aqua); }
+
+    .mobile-carousel-counter {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--gray);
     }
 
     .hero-content,

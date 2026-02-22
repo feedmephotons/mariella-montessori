@@ -105,14 +105,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // ========================================
-    // PROGRAM VERTICAL TABS
+    // PROGRAM VTABS (desktop) + CAROUSEL (mobile)
     // ========================================
+
+    const MOBILE_BP = 768;
 
     document.querySelectorAll('.program-vtabs').forEach(vtabs => {
         const buttons = vtabs.querySelectorAll('.vtab-btn');
+        const panelsEl = vtabs.querySelector('.vtab-panels');
         const panels = vtabs.querySelectorAll('.vtab-panel');
+        const total = panels.length;
+        let current = 0;
+        let isMobile = window.innerWidth <= MOBILE_BP;
 
-        function activate(index) {
+        // --- Desktop: vertical tab click ---
+        function activateTab(index) {
+            current = index;
             buttons.forEach(b => b.classList.remove('active'));
             panels.forEach(p => p.classList.remove('active'));
             buttons[index].classList.add('active');
@@ -120,24 +128,130 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         buttons.forEach((btn, i) => {
-            btn.addEventListener('click', () => activate(i));
+            btn.addEventListener('click', () => activateTab(i));
         });
 
-        // Keyboard navigation
+        // Desktop keyboard nav
         vtabs.addEventListener('keydown', e => {
+            if (isMobile) return;
             const focused = document.activeElement;
             const idx = Array.from(buttons).indexOf(focused);
             if (idx === -1) return;
             if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
                 e.preventDefault();
-                const next = (idx + 1) % buttons.length;
+                const next = (idx + 1) % total;
                 buttons[next].focus();
-                activate(next);
+                activateTab(next);
             } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
                 e.preventDefault();
-                const prev = (idx - 1 + buttons.length) % buttons.length;
+                const prev = (idx - 1 + total) % total;
                 buttons[prev].focus();
-                activate(prev);
+                activateTab(prev);
+            }
+        });
+
+        // --- Mobile: carousel controls ---
+        // Create nav arrows
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'mobile-carousel-nav mobile-carousel-prev';
+        prevBtn.setAttribute('aria-label', 'Previous class');
+        prevBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'mobile-carousel-nav mobile-carousel-next';
+        nextBtn.setAttribute('aria-label', 'Next class');
+        nextBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+
+        // Create footer with dots + counter
+        const footer = document.createElement('div');
+        footer.className = 'mobile-carousel-footer';
+        const dotsEl = document.createElement('div');
+        dotsEl.className = 'mobile-carousel-dots';
+        const counterEl = document.createElement('div');
+        counterEl.className = 'mobile-carousel-counter';
+        footer.appendChild(dotsEl);
+        footer.appendChild(counterEl);
+
+        // Build dots
+        for (let i = 0; i < total; i++) {
+            const dot = document.createElement('button');
+            dot.className = 'mobile-carousel-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', 'Go to class ' + (i + 1));
+            dot.addEventListener('click', () => goToSlide(i));
+            dotsEl.appendChild(dot);
+        }
+
+        // Inject into DOM
+        vtabs.insertBefore(prevBtn, panelsEl);
+        vtabs.insertBefore(nextBtn, panelsEl.nextSibling);
+        vtabs.appendChild(footer);
+
+        // Create carousel track wrapper inside panels
+        const track = document.createElement('div');
+        track.className = 'carousel-track';
+        while (panelsEl.firstChild) {
+            track.appendChild(panelsEl.firstChild);
+        }
+        panelsEl.appendChild(track);
+
+        function sizeCarousel() {
+            if (!isMobile) return;
+            // Calculate available width: viewport minus vtabs padding (40px each side)
+            var w = window.innerWidth - 80;
+            panelsEl.style.width = w + 'px';
+            panels.forEach(function(p) { p.style.width = w + 'px'; });
+        }
+
+        function goToSlide(index) {
+            current = ((index % total) + total) % total;
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+            dotsEl.querySelectorAll('.mobile-carousel-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === current);
+            });
+            counterEl.textContent = (current + 1) + ' of ' + total;
+        }
+
+        prevBtn.addEventListener('click', () => goToSlide(current - 1));
+        nextBtn.addEventListener('click', () => goToSlide(current + 1));
+
+        // Touch swipe
+        let startX = 0, dragging = false;
+        vtabs.addEventListener('touchstart', e => { startX = e.touches[0].clientX; dragging = true; }, { passive: true });
+        vtabs.addEventListener('touchend', e => {
+            if (!dragging || !isMobile) return;
+            dragging = false;
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 40) goToSlide(diff > 0 ? current + 1 : current - 1);
+        }, { passive: true });
+
+        // --- Mode switching on resize ---
+        function enterMobileMode() {
+            panelsEl.classList.add('carousel-mode');
+            sizeCarousel();
+            goToSlide(current);
+        }
+
+        function enterDesktopMode() {
+            panelsEl.classList.remove('carousel-mode');
+            track.style.transform = '';
+            panelsEl.style.width = '';
+            panels.forEach(p => { p.style.width = ''; p.classList.remove('active'); });
+            panels[current].classList.add('active');
+            buttons.forEach(b => b.classList.remove('active'));
+            buttons[current].classList.add('active');
+        }
+
+        // Init
+        if (isMobile) enterMobileMode();
+
+        window.addEventListener('resize', () => {
+            const nowMobile = window.innerWidth <= MOBILE_BP;
+            if (nowMobile !== isMobile) {
+                isMobile = nowMobile;
+                if (isMobile) enterMobileMode();
+                else enterDesktopMode();
+            } else if (isMobile) {
+                sizeCarousel();
             }
         });
     });
