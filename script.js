@@ -105,24 +105,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // ========================================
-    // PROGRAMS TAB FUNCTIONALITY
+    // PROGRAM CARD CAROUSELS
     // ========================================
 
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
+    document.querySelectorAll('.card-carousel').forEach(carousel => {
+        const track = carousel.querySelector('.carousel-track');
+        const cards = carousel.querySelectorAll('.carousel-card');
+        const prevBtn = carousel.querySelector('.carousel-prev');
+        const nextBtn = carousel.querySelector('.carousel-next');
+        const indicatorsEl = carousel.querySelector('.carousel-indicators');
+        const counterEl = carousel.querySelector('.carousel-counter');
+        let current = 0;
+        const total = cards.length;
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const targetTab = this.getAttribute('data-tab');
+        // Build dots
+        for (let i = 0; i < total; i++) {
+            const dot = document.createElement('button');
+            dot.classList.add('carousel-dot');
+            if (i === 0) dot.classList.add('active');
+            dot.setAttribute('aria-label', 'Go to class ' + (i + 1));
+            dot.addEventListener('click', () => goTo(i));
+            indicatorsEl.appendChild(dot);
+        }
 
-            // Remove active class from all buttons and contents
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
+        function goTo(index) {
+            current = ((index % total) + total) % total;
+            track.style.transform = 'translateX(-' + (current * 100) + '%)';
+            // Update dots
+            indicatorsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === current);
+            });
+            // Update counter
+            counterEl.textContent = (current + 1) + ' of ' + total;
+        }
 
-            // Add active class to clicked button and corresponding content
-            this.classList.add('active');
-            document.getElementById(targetTab).classList.add('active');
+        prevBtn.addEventListener('click', () => goTo(current - 1));
+        nextBtn.addEventListener('click', () => goTo(current + 1));
+
+        // Touch swipe
+        let startX = 0;
+        let isDragging = false;
+        carousel.addEventListener('touchstart', e => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        }, { passive: true });
+        carousel.addEventListener('touchend', e => {
+            if (!isDragging) return;
+            isDragging = false;
+            const diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 40) {
+                goTo(diff > 0 ? current + 1 : current - 1);
+            }
+        }, { passive: true });
+
+        // Keyboard
+        carousel.setAttribute('tabindex', '0');
+        carousel.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft') goTo(current - 1);
+            if (e.key === 'ArrowRight') goTo(current + 1);
         });
+
+        // Init
+        goTo(0);
     });
 
 
@@ -186,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // ========================================
-    // DROPDOWN LINKS TO PROGRAM TABS
+    // DROPDOWN LINKS TO PROGRAM SECTIONS
     // ========================================
 
     const dropdownLinks = document.querySelectorAll('.dropdown-link');
@@ -194,30 +238,18 @@ document.addEventListener('DOMContentLoaded', function() {
     dropdownLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            const targetTab = this.getAttribute('href').replace('#', '');
+            const targetId = this.getAttribute('href').replace('#', '');
 
-            // Scroll to programs section
-            const programsSection = document.getElementById('programs');
-            if (programsSection) {
+            // Scroll directly to the program branch section
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
                 const navbarHeight = document.querySelector('.navbar').offsetHeight;
-                const targetPosition = programsSection.offsetTop - navbarHeight;
+                const targetPosition = targetSection.offsetTop - navbarHeight - 20;
 
                 window.scrollTo({
                     top: targetPosition,
                     behavior: 'smooth'
                 });
-            }
-
-            // Activate the correct tab
-            const tabButton = document.querySelector(`.tab-button[data-tab="${targetTab}"]`);
-            if (tabButton) {
-                // Remove active from all tabs
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-
-                // Activate clicked tab
-                tabButton.classList.add('active');
-                document.getElementById(targetTab).classList.add('active');
             }
 
             // Close mobile menu if open
@@ -392,25 +424,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========================================
     // ACCESSIBILITY ENHANCEMENTS
     // ========================================
-
-    // Keyboard navigation for tabs
-    tabButtons.forEach((button, index) => {
-        button.addEventListener('keydown', function(e) {
-            let newIndex;
-
-            if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                newIndex = (index + 1) % tabButtons.length;
-                tabButtons[newIndex].focus();
-                tabButtons[newIndex].click();
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                newIndex = (index - 1 + tabButtons.length) % tabButtons.length;
-                tabButtons[newIndex].focus();
-                tabButtons[newIndex].click();
-            }
-        });
-    });
 
     // Announce page changes to screen readers
     function announcePageChange(sectionName) {
