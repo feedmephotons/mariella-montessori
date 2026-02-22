@@ -1017,107 +1017,94 @@ a:hover {
     margin: 0 auto;
 }
 
-/* Card Carousel */
-.card-carousel {
-    position: relative;
-    max-width: 560px;
-    margin: 0 auto var(--spacing-md);
-    padding: 0 48px;
-}
-
-.carousel-viewport {
-    overflow: hidden;
-    border-radius: var(--radius-lg);
-}
-
-.carousel-track {
+/* Vertical Tabs for Programs */
+.program-vtabs {
     display: flex;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    align-items: flex-start;
 }
 
-.carousel-card {
-    flex: 0 0 100%;
-    min-width: 100%;
+.vtab-list {
+    flex: 0 0 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: sticky;
+    top: 100px;
 }
 
-.carousel-card .program-card {
+.vtab-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    border-left: 3px solid var(--light-gray);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+    line-height: 1.3;
+}
+
+.vtab-btn:hover {
+    color: var(--dark);
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.vtab-btn.active {
+    color: var(--dark);
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Branch-colored active indicator */
+.branch-studio-section .vtab-btn.active { border-left-color: var(--purple); }
+.branch-academia-section .vtab-btn.active { border-left-color: var(--teal); }
+.branch-collective-section .vtab-btn.active { border-left-color: var(--aqua); }
+
+.vtab-age {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray);
+    font-weight: 400;
+}
+
+.vtab-panels {
+    flex: 1;
+    min-width: 0;
+}
+
+.vtab-panel {
+    display: none;
+}
+
+.vtab-panel.active {
+    display: block;
+    animation: vtabFadeIn 0.25s ease;
+}
+
+@keyframes vtabFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.vtab-panel .program-card {
     margin: 0;
     border-left: 3px solid transparent;
 }
 
-.branch-studio-section .carousel-card .program-card { border-left-color: var(--purple); }
-.branch-academia-section .carousel-card .program-card { border-left-color: var(--teal); }
-.branch-collective-section .carousel-card .program-card { border-left-color: var(--aqua); }
-
-.carousel-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-70%);
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: var(--white);
-    border: 1px solid var(--light-gray);
-    color: var(--dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 2;
-    transition: all var(--transition-fast);
-    box-shadow: var(--shadow-sm);
-}
-
-.carousel-nav:hover {
-    box-shadow: var(--shadow-md);
-}
-
-.carousel-prev { left: 0; }
-.carousel-next { right: 0; }
-
-.branch-studio-section .carousel-nav:hover { color: var(--purple); border-color: var(--purple); }
-.branch-academia-section .carousel-nav:hover { color: var(--teal); border-color: var(--teal); }
-.branch-collective-section .carousel-nav:hover { color: var(--aqua); border-color: var(--aqua); }
-
-.carousel-footer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--spacing-xs);
-    margin-top: var(--spacing-sm);
-}
-
-.carousel-indicators {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-}
-
-.carousel-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--light-gray);
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.carousel-dot.active {
-    background: var(--teal);
-    transform: scale(1.3);
-}
-
-.branch-studio-section .carousel-dot.active { background: var(--purple); }
-.branch-collective-section .carousel-dot.active { background: var(--aqua); }
-
-.carousel-counter {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--gray);
-    letter-spacing: 0.05em;
-}
+.branch-studio-section .vtab-panel .program-card { border-left-color: var(--purple); }
+.branch-academia-section .vtab-panel .program-card { border-left-color: var(--teal); }
+.branch-collective-section .vtab-panel .program-card { border-left-color: var(--aqua); }
 
 .tab-header h2 {
     margin-bottom: var(--spacing-sm);
@@ -1916,8 +1903,8 @@ a:hover {
         padding: var(--spacing-lg) 0;
     }
 
-    .card-carousel {
-        padding: 0 40px;
+    .vtab-list {
+        flex: 0 0 200px;
     }
 }
 
@@ -1940,13 +1927,41 @@ a:hover {
         grid-template-columns: 1fr;
     }
 
-    .card-carousel {
-        padding: 0 36px;
+    .program-vtabs {
+        flex-direction: column;
     }
 
-    .carousel-nav {
-        width: 32px;
-        height: 32px;
+    .vtab-list {
+        flex: none;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 0;
+        position: static;
+        border-bottom: 1px solid var(--light-gray);
+        padding-bottom: 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .vtab-list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .vtab-btn {
+        flex: 0 0 auto;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        padding: 8px 14px;
+        white-space: nowrap;
+        font-size: 0.85rem;
+    }
+
+    .branch-studio-section .vtab-btn.active { border-left-color: transparent; border-bottom-color: var(--purple); }
+    .branch-academia-section .vtab-btn.active { border-left-color: transparent; border-bottom-color: var(--teal); }
+    .branch-collective-section .vtab-btn.active { border-left-color: transparent; border-bottom-color: var(--aqua); }
+
+    .vtab-age {
+        display: none;
     }
 
     .hero-content,

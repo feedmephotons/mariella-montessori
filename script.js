@@ -105,68 +105,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // ========================================
-    // PROGRAM CARD CAROUSELS
+    // PROGRAM VERTICAL TABS
     // ========================================
 
-    document.querySelectorAll('.card-carousel').forEach(carousel => {
-        const track = carousel.querySelector('.carousel-track');
-        const cards = carousel.querySelectorAll('.carousel-card');
-        const prevBtn = carousel.querySelector('.carousel-prev');
-        const nextBtn = carousel.querySelector('.carousel-next');
-        const indicatorsEl = carousel.querySelector('.carousel-indicators');
-        const counterEl = carousel.querySelector('.carousel-counter');
-        let current = 0;
-        const total = cards.length;
+    document.querySelectorAll('.program-vtabs').forEach(vtabs => {
+        const buttons = vtabs.querySelectorAll('.vtab-btn');
+        const panels = vtabs.querySelectorAll('.vtab-panel');
 
-        // Build dots
-        for (let i = 0; i < total; i++) {
-            const dot = document.createElement('button');
-            dot.classList.add('carousel-dot');
-            if (i === 0) dot.classList.add('active');
-            dot.setAttribute('aria-label', 'Go to class ' + (i + 1));
-            dot.addEventListener('click', () => goTo(i));
-            indicatorsEl.appendChild(dot);
+        function activate(index) {
+            buttons.forEach(b => b.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+            buttons[index].classList.add('active');
+            panels[index].classList.add('active');
         }
 
-        function goTo(index) {
-            current = ((index % total) + total) % total;
-            track.style.transform = 'translateX(-' + (current * 100) + '%)';
-            // Update dots
-            indicatorsEl.querySelectorAll('.carousel-dot').forEach((d, i) => {
-                d.classList.toggle('active', i === current);
-            });
-            // Update counter
-            counterEl.textContent = (current + 1) + ' of ' + total;
-        }
-
-        prevBtn.addEventListener('click', () => goTo(current - 1));
-        nextBtn.addEventListener('click', () => goTo(current + 1));
-
-        // Touch swipe
-        let startX = 0;
-        let isDragging = false;
-        carousel.addEventListener('touchstart', e => {
-            startX = e.touches[0].clientX;
-            isDragging = true;
-        }, { passive: true });
-        carousel.addEventListener('touchend', e => {
-            if (!isDragging) return;
-            isDragging = false;
-            const diff = startX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 40) {
-                goTo(diff > 0 ? current + 1 : current - 1);
-            }
-        }, { passive: true });
-
-        // Keyboard
-        carousel.setAttribute('tabindex', '0');
-        carousel.addEventListener('keydown', e => {
-            if (e.key === 'ArrowLeft') goTo(current - 1);
-            if (e.key === 'ArrowRight') goTo(current + 1);
+        buttons.forEach((btn, i) => {
+            btn.addEventListener('click', () => activate(i));
         });
 
-        // Init
-        goTo(0);
+        // Keyboard navigation
+        vtabs.addEventListener('keydown', e => {
+            const focused = document.activeElement;
+            const idx = Array.from(buttons).indexOf(focused);
+            if (idx === -1) return;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                const next = (idx + 1) % buttons.length;
+                buttons[next].focus();
+                activate(next);
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const prev = (idx - 1 + buttons.length) % buttons.length;
+                buttons[prev].focus();
+                activate(prev);
+            }
+        });
     });
 
 
