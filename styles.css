@@ -2713,6 +2713,26 @@ img {
     border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
 
+/* Navbar link underline — hover only, not active */
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background-color: var(--white);
+    transition: all var(--transition-medium);
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: calc(100% - 1rem);
+}
 
 /* Reduce spacing on smaller program grid */
 @media (min-width: 769px) {
